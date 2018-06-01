@@ -1,0 +1,35 @@
+##
+# To disable app by app and not globally 
+##
+
+# Just list where the setting is present
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -H 'check_for_updates' {} \;
+
+# change false to 0
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -l 'check_for_updates = false' {} \; | while read a; do echo "$a"; sed -i '/check_for_updates/s/false/0/' "$a" ; done
+
+# change 1 to 0
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -l 'check_for_updates = 1' {} \; | while read a; do echo "$a"; sed -i '/check_for_updates/s/1/0/' "$a" ; done
+
+# Just list where no status is defined
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -L 'check_for_updates' {} \;
+
+# add it where local exist
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -L 'check_for_updates' {} \; | while read a; do echo "$a"; printf "\n[package]\ncheck_for_updates = 0\n" >> "$a" ; done
+
+# create where it doesn't exist
+find /opt/splunk/etc/apps/ -maxdepth 1 -mindepth 1 -type d | while read a; do mkdir -p "$a"/local ; [[ -r "$a"/local/app.conf ]] || printf "[package]\ncheck_for_updates = 0\n" >> "$a"/local/app.conf ; done
+
+# Recheck now where the setting is present
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -H 'check_for_updates' {} \;
+
+##
+#  To debug some dup
+##
+
+# Check fix
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -cH 'check_for_updates' {} \; | grep -v '1$'
+
+# remove duplication in case of error
+find /opt/splunk/etc/apps/ -type f -path '*/local/*' -name app.conf -exec grep -l 'check_for_updates' {} \; | while read a; do sed -ire '/check_for_updates/{N;/package/d}' "$a"; done
+
