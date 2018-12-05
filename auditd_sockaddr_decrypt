@@ -1,0 +1,9 @@
+index="tmp_auditd" sourcetype=linux:audit SOCKADDR saddr=* 
+| eval saddr_f1=substr('saddr',1,2), saddr_f2=substr('saddr',3,2), saddr_p1=substr('saddr',5,2), saddr_p2=substr('saddr',7,2), saddr_addrip1=substr('saddr',9,2), saddr_addrip2=substr('saddr',11,2), saddr_addrip3=substr('saddr',13,2), saddr_addrip4=substr('saddr',15,2), saddr_file=substr('saddr',5)
+| eval saddr_family=tonumber(saddr_f1,16)+256*tonumber(saddr_f2,16) | fields - saddr_f1 saddr_f2
+| eval saddr_addrip1=tostring(tonumber(saddr_addrip1,16)), saddr_addrip2=tostring(tonumber(saddr_addrip2,16)), saddr_addrip3=tostring(tonumber(saddr_addrip3,16)), saddr_addrip4=tostring(tonumber(saddr_addrip4,16)) 
+| eval dest_ip=if(saddr_family="2",saddr_addrip1+"."+saddr_addrip2+"."+saddr_addrip3+"."+saddr_addrip4,NULL) | fields - saddr_addrip1 saddr_addrip2 saddr_addrip3 saddr_addrip4
+| eval dest_port=if(saddr_family="2",256*tonumber(saddr_p1,16)+tonumber(saddr_p2,16),NULL) | fields - saddr_p1 saddr_p2
+| rex mode=sed field=saddr_file "s/([0-9A-Fa-f]{2})/%\1/g" 
+| eval file=if(saddr_family="1",urldecode(saddr_file),NULL) | fields - saddr_file
+| table index host saddr_family dest_ip dest_port file _raw
