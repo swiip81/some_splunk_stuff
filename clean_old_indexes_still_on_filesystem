@@ -7,5 +7,5 @@
 diff -dy 
 <(splunk btool indexes list | grep '^homePath = volume' | sed 's|homePath = volume:san|/opt/indexes/san|;s|/db$||' | sort) 
 <( find /opt/indexes/san/ -maxdepth 1 -mindepth 1 -type d | sort ) 
-| grep -v '/audit$\|/authDb$\|/defaultdb$\|/fishbucket$\|/hashDb$\|/historydb$\|/_internaldb$\|/_introspection$\|/kvstore$\|/persistentstorage$\|/summarydb$\|/_telemetry$\|lost+found$'
+| grep -v '/db$\|/audit$\|/authDb$\|/defaultdb$\|/fishbucket$\|/hashDb$\|/historydb$\|/_internaldb$\|/_introspection$\|/kvstore$\|/persistentstorage$\|/summarydb$\|/_telemetry$\|lost+found$'
 | less
