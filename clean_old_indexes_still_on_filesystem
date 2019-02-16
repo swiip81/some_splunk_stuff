@@ -1,0 +1,11 @@
+# To check on a splunk indexers the folders which are not anymore declared 
+# In my case  volume:san = /opt/indexes/san
+# The idea is to compaire btool result to directories on the filesystem and exclude special dirs
+# The result display on right side of the old folders which might be removed
+# Oneline command splited under for readability
+
+diff -dy 
+<(splunk btool indexes list | grep '^homePath = volume' | sed 's|homePath = volume:san|/opt/indexes/san|;s|/db$||' | sort) 
+<( find /opt/indexes/san/ -maxdepth 1 -mindepth 1 -type d | sort ) 
+| grep -v '/audit$\|/authDb$\|/defaultdb$\|/fishbucket$\|/hashDb$\|/historydb$\|/_internaldb$\|/_introspection$\|/kvstore$\|/persistentstorage$\|/summarydb$\|/_telemetry$\|lost+found$'
+| less
