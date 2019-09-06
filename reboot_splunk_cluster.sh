@@ -53,21 +53,21 @@ disable_maintenancemode()
 stop_splunk()
 {
     echo_date
-	echo_green "${1} Stoping splunk"
+    echo_green "${1} Stoping splunk"
     ssh -o StrictHostKeyChecking=no "${1}" -l splunk -- "/opt/splunk/bin/splunk stop"
 }
 
 offline_splunk()
 {
     echo_date
-	echo_green "${1} Put offline splunk"
-	ssh -o StrictHostKeyChecking=no "${1}" -l splunk -- "/opt/splunk/bin/splunk offline -auth "${SPLK_USER}":${SPLK_PASS}"
+    echo_green "${1} Put offline splunk"
+    ssh -o StrictHostKeyChecking=no "${1}" -l splunk -- "/opt/splunk/bin/splunk offline -auth "${SPLK_USER}":${SPLK_PASS}"
 }
 
 go_reboot()
 {
     echo_date
-	echo_green "${1} Reboot"
+    echo_green "${1} Reboot"
     ssh -o StrictHostKeyChecking=no "${1}" -l root -- reboot
 }
 
@@ -75,7 +75,7 @@ wait_online_status()
 {
     echo_date
     echo_green "${1} Waiting online status + ${2}s"
-	while ! $(echo quit | curl -s -m1 telnet://${1}:8089 &>/dev/null) ; do sleep 5s ; done ; sleep "${2}"s
+    while ! $(echo quit | curl -s -m1 telnet://${1}:8089 &>/dev/null) ; do sleep 5s ; done ; sleep "${2}"s
     echo_green "${1} Done" 
 }
 
@@ -86,7 +86,6 @@ set_restart_timeout()
 }
 
 
-
 # Main
 
 echo_cyan "$dash_line"
@@ -94,7 +93,7 @@ echo_cyan "$dash_line"
 enable_maintenancemode
 echo_red "Reboot ClusterMaster"
 for thishost in "${MASTER}" ; do
- 	stop_splunk "${thishost}"
+    stop_splunk "${thishost}"
     go_reboot "${thishost}"
     wait_online_status "${thishost}" 60
 done
@@ -116,14 +115,14 @@ set_restart_timeout 600
 echo_red "Reboot HF and SH"
 for thishost in "${SHANDHF[@]}" ; do
     stop_splunk "${thishost}"
-	go_reboot "${thishost}"
+    go_reboot "${thishost}"
     wait_online_status "${thishost}" 10
 done
 
 echo_red "Reboot UF"
 for thishost in "${UF[@]}" ; do
     stop_splunk "${thishost}"
-	go_reboot "${thishost}"
+    go_reboot "${thishost}"
 done
 
 echo_cyan "$dash_line"
